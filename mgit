@@ -1,0 +1,19 @@
+#! /bin/bash
+
+repos="matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmooc-docker-canvas mmooc-docker canvas-lms"
+
+case $1 in
+    clone)
+        for X in $repos; do
+            git clone git@github.com:matematikk-mooc/$X.git
+        done
+
+        cd canvas-lms
+        git remote add upstream git@github.com:instructure/canvas-lms.git
+        cd -
+        ;;
+    *)
+        for X in $repos; do
+            echo git $@
+        done
+esac
