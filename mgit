@@ -1,6 +1,6 @@
 #! /bin/bash
 
-repos="matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmooc-docker-canvas mmooc-docker canvas-lms"
+repos=". matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmooc-docker-canvas mmooc-docker canvas-lms"
 
 case $1 in
     clone)
@@ -14,6 +14,7 @@ case $1 in
         ;;
     *)
         for X in $repos; do
-            echo git $@
+            echo Entering $X
+            (cd $X && git $@)
         done
 esac

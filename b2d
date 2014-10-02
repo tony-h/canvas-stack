@@ -1,6 +1,6 @@
-#! /bin/bash -x
+#! /bin/bash
 
-canvas_dir=$(pwd)/canvas-lms
+canvas_dir=$(pwd)/canvas-lms/
 excludes="--exclude=.git --exclude=vendor/"
 ssh_key=$(boot2docker config 2> /dev/null | grep SSHKey | cut -d '"' -f2)
 ssh_port=$(boot2docker config 2> /dev/null | grep SSHPort | cut -d' ' -f3)
@@ -16,12 +16,14 @@ case $1 in
         boot2docker ssh tce-load -wi rsync
         boot2docker ssh sudo mkdir -p $canvas_dir
         boot2docker ssh sudo chown docker.docker $canvas_dir
+        scp -r -i $ssh_key canvas-lms docker@$ip_address:$(pwd)
         ;;
-    sync)
+    watch)
+        rsync -av --del -e "ssh -i $ssh_key" $excludes canvas-lms/ --port=$ssh_port canvas-lms/ docker@$ip_address:$canvas_dir
         echo "Watching..."
         fswatch -o canvas-lms | \
             xargs -t -n1 -I % \
-            rsync -av -e "ssh -i $ssh_key" $excludes canvas-lms/ --port=$ssh_port canvas-lms/ docker@$ip_address:$canvas_dir
+            rsync -av --del -e "ssh -i $ssh_key" $excludes canvas-lms/ --port=$ssh_port canvas-lms/ docker@$ip_address:$canvas_dir
         ;;
     *)
         cat <<EOF
@@ -31,6 +33,7 @@ Utilities for doing development using boot2docker
 
 Commands:
 init - FIXME
-sync - FIXME
+watch - FIXME
 EOF
+        ;;
 esac
