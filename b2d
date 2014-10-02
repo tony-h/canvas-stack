@@ -1,0 +1,36 @@
+#! /bin/bash -x
+
+canvas_dir=$(pwd)/canvas-lms
+excludes="--exclude=.git --exclude=vendor/"
+ssh_key=$(boot2docker config 2> /dev/null | grep SSHKey | cut -d '"' -f2)
+ssh_port=$(boot2docker config 2> /dev/null | grep SSHPort | cut -d' ' -f3)
+ip_address=$(boot2docker ip 2> /dev/null)
+
+hash fswatch 2> /dev/null || {
+    echo "Installing fswatch ..."
+    brew install fswatch
+}
+
+case $1 in
+    init)
+        boot2docker ssh tce-load -wi rsync
+        boot2docker ssh sudo mkdir -p $canvas_dir
+        boot2docker ssh sudo chown docker.docker $canvas_dir
+        ;;
+    sync)
+        echo "Watching..."
+        fswatch -o canvas-lms | \
+            xargs -t -n1 -I % \
+            rsync -av -e "ssh -i $ssh_key" $excludes canvas-lms/ --port=$ssh_port canvas-lms/ docker@$ip_address:$canvas_dir
+        ;;
+    *)
+        cat <<EOF
+Usage: b2d COMMAND
+
+Utilities for doing development using boot2docker
+
+Commands:
+init - FIXME
+sync - FIXME
+EOF
+esac
