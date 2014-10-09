@@ -5,11 +5,15 @@ repos="matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmoo
 case $1 in
     clone)
         for X in $repos; do
-            git clone git@github.com:matematikk-mooc/$X.git
+            if ! [ -e $X ]; then 
+                git clone git@github.com:matematikk-mooc/$X.git
+            fi
         done
 
         cd canvas-lms
-        git remote add upstream git@github.com:instructure/canvas-lms.git
+        if ! git remote | grep -q upstream; then
+            git remote add upstream git@github.com:instructure/canvas-lms.git
+        fi
         cd -
         ;;
     *)
