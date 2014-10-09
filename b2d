@@ -1,7 +1,7 @@
 #! /bin/bash
 
 canvas_dir=$(pwd)/canvas-lms/
-excludes="--exclude=.git --exclude=vendor/"
+excludes="--exclude=.git --exclude=vendor/ --exclude=tmp"
 ssh_key=$(boot2docker config 2> /dev/null | grep SSHKey | cut -d '"' -f2)
 ssh_port=$(boot2docker config 2> /dev/null | grep SSHPort | cut -d' ' -f3)
 ip_address=$(boot2docker ip 2> /dev/null)
