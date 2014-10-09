@@ -18,6 +18,11 @@ case $1 in
         boot2docker ssh sudo chown docker.docker $canvas_dir
         scp -r -i $ssh_key canvas-lms docker@$ip_address:$(pwd)
         ;;
+    url)
+        url=$(boot2docker ip 2>/dev/null):$(docker port web 80 | cut -d: -f2) 
+        echo "The following URL have been copied to your clipboard: $url"
+        echo $url | pbcopy
+        ;;
     watch)
         rsync -av --del -e "ssh -i $ssh_key" $excludes canvas-lms/ --port=$ssh_port canvas-lms/ docker@$ip_address:$canvas_dir
         echo "Watching..."
@@ -32,8 +37,9 @@ Usage: b2d COMMAND
 Utilities for doing development using boot2docker
 
 Commands:
-init - FIXME
-watch - FIXME
+    init  FIXME
+    url   FIXME
+    watch FIXME
 EOF
         ;;
 esac

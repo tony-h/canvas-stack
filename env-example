@@ -1,0 +1,18 @@
+######################################################################
+# Variables used on first time initialization of the Canvas database
+
+# E-mail address used for default administrator login
+CANVAS_LMS_ADMIN_EMAIL=
+
+# Password for default administrator login
+CANVAS_LMS_ADMIN_PASSWORD=
+
+# Account name seen by users, usually your organization name
+CANVAS_LMS_ACCOUNT_NAME=
+
+# opt_in, opt_out, or anonymized
+CANVAS_LMS_STATS_COLLECTION=
+
+######################################################################
+
+RAILS_ENV=production

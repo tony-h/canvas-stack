@@ -17,8 +17,9 @@ case $1 in
         cd -
         ;;
     *)
-        for X in ". $repos"; do
+        list=". $repos"
+        for X in $list; do
             echo Entering $X
-            (cd $X && git $@)
+            (cd $X && git "$@")
         done
 esac
