@@ -11,8 +11,12 @@ CANVAS_LMS_ADMIN_PASSWORD=
 CANVAS_LMS_ACCOUNT_NAME=
 
 # opt_in, opt_out, or anonymized
-CANVAS_LMS_STATS_COLLECTION=
+CANVAS_LMS_STATS_COLLECTION=opt_out
 
 ######################################################################
 
+# Password to the PostgreSQL database
+DBPASS=geheim
+
+# Rails environment (test, development, production). Should not be changed
 RAILS_ENV=production
