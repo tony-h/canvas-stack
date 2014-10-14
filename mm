@@ -78,25 +78,25 @@ mm_start_data() {
 
 mm_start() {
     case $1 in
-        "all")
+        all)
             docker_run_db
             docker_run_cache
             docker_run_web
             docker_run_haproxy
             ;;
-        "data")
+        data)
             mm_start_data
             ;;
-        "db")
+        db)
             docker_run_db
             ;;
-        "cache")
+        cache)
             docker_run_cache
             ;;
-        "web")
+        web)
             docker_run_web
             ;;
-        "hapoxy")
+        hapoxy)
             docker_run_web
             ;;
         *)
@@ -122,14 +122,14 @@ mm_boot() {
 
 mm_stop() {
     case $1 in
-        "all")
+        all)
             for X in web haproxy cache db; do
                 echo "Stopping $X..."
                 docker stop $X
                 docker rm $X
             done
             ;;
-        "*")
+        *)
             echo "FIXME"
             ;;
     esac
@@ -140,7 +140,7 @@ if [ "$1" = "--local" -o "$1" = "-l" ]; then
     shift
 fi
 command=$1
-shift
+shift || true
 case $command in
     build)
         mm_build "$@"
@@ -150,7 +150,7 @@ case $command in
         ;;
     initdb)
         image=$(mm_image_name mmooc/db)
-        docker run --rm -t -i --env-file=env --user=root --volumes-from=db-data $image /bin/bash # /root/initdb
+        docker run --rm -t -i --env-file=env --user=root --volumes-from=db-data $image /bin/bash /root/initdb
         ;;
     rails)
         docker run --rm -t -i -P -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rails $@
