@@ -110,9 +110,23 @@ EOF
     esac
 }
 
+mm_init_schema() {
+    local image=$(mm_image_name mmooc/canvas)
+    docker run --rm --env-file=env -w /opt/canvas-lms --link db:db mmooc/canvas bundle exec rake db:initial_setup
+}
+
+
+mm_initdb() {
+    local image=$(mm_image_name mmooc/db)
+    docker run --rm -t -i --env-file=env --user=root --volumes-from=db-data $image /bin/bash /root/initdb
+}
+
+
 mm_boot() {
     mm_start_data
-    #FIXME initdb
+    mm_initdb
+    mm_start db
+    mm_init_schema
     mm_start all
 }
 
@@ -145,14 +159,21 @@ case $command in
         mm_boot
         ;;
     initdb)
-        image=$(mm_image_name mmooc/db)
-        docker run --rm -t -i --env-file=env --user=root --volumes-from=db-data $image /bin/bash /root/initdb
+        mm_init_db
+        ;;
+    init-schema)
+        mm_init_schema
+        ;;
+    pull)
+        for X in db canvas cache haproxy; do
+            docker pull mmooc/$X
+        done
         ;;
     rails)
-        docker run --rm -t -i -P -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rails $@
+        docker run --rm -t -i -P -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rails "$@"
         ;;
     rake)
-        docker run --rm -t -i -P -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rake $@
+        docker run --rm -t -i -P -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rake "$@"
         ;;
     start)
         mm_start "$@"
@@ -170,8 +191,11 @@ Options
     --local -l  Use images with tag :local
 
 Commads:
+    boot   FIXME
     build  FIXME
     initdb FIXME
+    init-schema FIXME
+    pull   FIXME
     rails  FIXME
     rake   FIXME
     start  FIXME
