@@ -39,10 +39,6 @@ docker_run() {
     local image=$(mm_image_name $1)
     local options=$3
 
-    if [ "$use_local_image" = true ]; then
-        image="$image:local"
-    fi
-
     docker run --env-file=env -d -P $options --name=$container $image
 }
 
