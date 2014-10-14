@@ -39,7 +39,7 @@ docker_run() {
     local image=$(mm_image_name $1)
     local options=$3
 
-    docker run --env-file=env -d -P $options --name=$container $image
+    docker run --env-file=env -d -P $options --name=$container $image || true
 }
 
 docker_run_db() {
@@ -170,6 +170,9 @@ case $command in
         done
         ;;
     rails)
+        docker run --rm -t -i -P --link db:db -w /opt/canvas-lms mmooc/canvas bundle exec rails "$@"
+        ;;
+    rails-dev)
         docker run --rm -t -i -P -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rails "$@"
         ;;
     rake)
