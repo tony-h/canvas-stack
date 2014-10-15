@@ -1,7 +1,6 @@
 #! /bin/bash
 
 set -e
-set -x
 
 canvas_dir=$(pwd)/canvas-lms
 use_local_image=false 
@@ -21,7 +20,7 @@ mm_build() {
             docker build -t mmooc/haproxy:local mmooc-docker-haproxy
             ;;
         *)
-            echo FIXME
+            mm_help build
             ;;
     esac
 }
@@ -39,7 +38,9 @@ docker_run() {
     local image=$(mm_image_name $1)
     local options=$3
 
-    docker run --env-file=env -d -P $options --name=$container $image || true
+    local command="docker run --env-file=env -d -P $options --name=$container $image"
+    echo $command
+    $command || true
 }
 
 docker_run_db() {
@@ -72,6 +73,20 @@ mm_start_data() {
     fi
 }
 
+mm_help_start() {
+    cat <<EOF
+Usage: mm start COMMAND
+
+Commands
+    all     Start all service containers
+    data    Start data volume containers
+    db      Start the PostgreSQL container
+    cache   Start the Redis container
+    web     Start the Canvas container
+    haproxy Start the HAProxy container
+EOF
+}
+
 mm_start() {
     case $1 in
         all)
@@ -96,23 +111,14 @@ mm_start() {
             docker_run_web
             ;;
         *)
-            cat <<EOF
-Usage: mm start COMMAND
-
-Commands
-    all     FIXME
-    db      FIXME
-    cache   FIXME
-    web     FIXME
-    haproxy FIXME
-EOF
+            mm_help start
             ;;
     esac
 }
 
 mm_init_schema() {
     local image=$(mm_image_name mmooc/canvas)
-    docker run --rm --env-file=env -w /opt/canvas-lms --link db:db mmooc/canvas bundle exec rake db:initial_setup
+    docker run --rm --env-file=env -w /opt/canvas-lms --link db:db $image bundle exec rake db:initial_setup
 }
 
 
@@ -140,7 +146,74 @@ mm_stop() {
             done
             ;;
         *)
-            echo "FIXME"
+            mm_help stop
+            ;;
+    esac
+}
+
+mm_help_main() {
+    cat <<EOF
+Usage: mm [OPTIONS] COMMAND
+
+Utilities FIXME
+
+Options
+    -l, --local  Use images with tag :local
+
+Commads:
+    boot   First time use. Takes up the whole system
+    build  Build local docker images
+    help   Display help information
+    initdb Create the postgres cluster, roles and databases
+    init-schema Initialize the database schema and insert initial data
+    pull   Pull new versions of docker images
+    rails  FIXME
+    rake   FIXME
+    start  Start one or all docker containers
+EOF
+}
+
+mm_help_fixme() {
+    echo "FIXME To be documented ..."
+}
+
+mm_help() {
+    case $1 in
+        build)
+            mm_help_fixme
+            ;;
+        boot)
+            mm_help_fixme
+            ;;
+        help)
+            mm_help_fixme
+            ;;
+        initdb)
+            mm_help_fixme
+            ;;
+        init-schema)
+            mm_help_fixme
+            ;;
+        pull)
+            mm_help_fixme
+            ;;
+        rails)
+            mm_help_fixme
+            ;;
+        rails-dev)
+            mm_help_fixme
+            ;;
+        rake)
+            mm_help_fixme
+            ;;
+        start)
+            mm_help_start
+            ;;
+        stop)
+            mm_help_fixme
+            ;;
+        *)
+            mm_help_main
             ;;
     esac
 }
@@ -157,6 +230,9 @@ case $command in
         ;;
     boot)
         mm_boot
+        ;;
+    help)
+        mm_help "$@"
         ;;
     initdb)
         mm_init_db
@@ -185,23 +261,6 @@ case $command in
         mm_stop "$@"
         ;;
     *)
-        cat <<EOF
-Usage: mm [OPTIONS] COMMAND
-
-Utilities FIXME
-
-Options
-    --local -l  Use images with tag :local
-
-Commads:
-    boot   FIXME
-    build  FIXME
-    initdb FIXME
-    init-schema FIXME
-    pull   FIXME
-    rails  FIXME
-    rake   FIXME
-    start  FIXME
-EOF
+        mm_help
         ;;
 esac
