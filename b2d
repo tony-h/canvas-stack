@@ -37,7 +37,7 @@ Usage: b2d COMMAND
 Utilities for doing development using boot2docker
 
 Commands:
-    init  FIXME
+    init  First time initialization for setting up Canvas development environment
     url   FIXME
     watch FIXME
 EOF
