@@ -55,6 +55,13 @@ docker_run_web() {
     docker_run mmooc/canvas web "--volumes-from=web-data --link db:db"
 }
 
+docker_run_jobs() {
+    local image=$(mm_image_name mmooc/canvas)
+    local command="docker run --env-file=env -d -P --volumes-from=web-data --link db:db --name=jobs $image /opt/canvas-lms/script/canvas_init run"
+    echo $command
+    $command || true
+}
+
 docker_run_haproxy() {
     docker_run mmooc/canvas haproxy "--link web:web"
 }
@@ -79,9 +86,10 @@ Usage: mm start COMMAND
 
 Commands
     all     Start all service containers
+    cache   Start the Redis container
     data    Start data volume containers
     db      Start the PostgreSQL container
-    cache   Start the Redis container
+    jobs    FIXME
     web     Start the Canvas container
     haproxy Start the HAProxy container
 EOF
@@ -94,6 +102,7 @@ mm_start() {
             docker_run_cache
             docker_run_web
             docker_run_haproxy
+            docker_run_jobs
             ;;
         data)
             mm_start_data
@@ -103,6 +112,9 @@ mm_start() {
             ;;
         cache)
             docker_run_cache
+            ;;
+        jobs)
+            docker_run_jobs
             ;;
         web)
             docker_run_web
