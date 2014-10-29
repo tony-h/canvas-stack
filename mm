@@ -72,7 +72,7 @@ container_exists() {
 
 mm_start_data() {
     if ! container_exists web-data ; then 
-        docker_run ubuntu:12.04 web-data "-v /var/log/apache2 -v /opt/canvas-lms/log"
+        docker_run ubuntu:12.04 web-data "-v /var/log/apache2 -v /opt/canvas-lms/log -v /opt/canvas-lms/tmp/files"
     fi
     
     if ! container_exists db-data ; then 
