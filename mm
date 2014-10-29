@@ -8,7 +8,7 @@ use_local_image=false
 mm_build() {
     case $1 in
         web)
-            docker build -t mmooc/web:local mmooc-docker-canvas
+            docker build -t mmooc/canvas:local mmooc-docker-canvas
             ;;
         db)
             docker build -t mmooc/db:local mmooc-docker-postgresql
