@@ -5,4 +5,5 @@ mmooc-docker-canvas
 mmooc-docker-postgresql
 mmooc-docker-redis
 mmooc-docker-haproxy/
+mmooc-docker-tools
 env
