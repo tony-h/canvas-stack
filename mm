@@ -258,7 +258,8 @@ case $command in
         done
         ;;
     rails)
-        docker run --rm -t -i -P --env-file=env --link db:db -w /opt/canvas-lms mmooc/canvas bundle exec rails "$@"
+        image=$(mm_image_name mmooc/canvas)
+        docker run --rm -t -i -P --env-file=env --link db:db -w /opt/canvas-lms $image bundle exec rails "$@"
         ;;
     rails-dev)
         docker run --rm -t -i -p 3000:3000 --env-file=env -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rails "$@"
