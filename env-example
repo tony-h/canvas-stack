@@ -15,6 +15,9 @@ CANVAS_LMS_STATS_COLLECTION=opt_out
 
 ######################################################################
 
+# Domain name
+DOMAIN=canvas.example.com
+
 # Password to the PostgreSQL database
 DBPASS=geheim
 
