@@ -52,7 +52,7 @@ docker_run_cache() {
 }
 
 docker_run_web() {
-    docker_run mmooc/canvas web "--volumes-from=web-data --link db:db"
+    docker_run mmooc/canvas web "--volumes-from=web-data --link db:db --link cache:cache"
 }
 
 docker_run_jobs() {
