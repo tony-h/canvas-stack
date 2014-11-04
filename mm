@@ -253,7 +253,7 @@ case $command in
         mm_init_schema
         ;;
     pull)
-        for X in db canvas cache haproxy; do
+        for X in db canvas cache haproxy tools; do
             docker pull mmooc/$X
         done
         ;;
