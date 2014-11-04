@@ -144,8 +144,10 @@ mm_boot() {
     mm_start_data
     mm_initdb
     mm_start db
+    mm_start cache
     mm_init_schema
-    mm_start all
+    mm_start web
+    mm_start jobs
 }
 
 mm_stop() {
