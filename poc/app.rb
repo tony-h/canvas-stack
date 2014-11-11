@@ -4,7 +4,7 @@ Bundler.require(:default)
 
 require 'json'
 
-DotEnv.load
+Dotenv.load
 
 # http://tools.ietf.org/html/rfc6749#section-1.2
 # https://canvas.instructure.com/doc/api/file.oauth.html
@@ -45,4 +45,8 @@ get '/grant' do
     req.headers['Authorization'] = "Bearer #{access_token}"
   end
   res.body
+end
+
+get '/test' do
+  haml :test
 end
