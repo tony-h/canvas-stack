@@ -1,12 +1,12 @@
 #! /bin/bash
 
-repos="matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmooc-docker-canvas mmooc-docker canvas-lms mmooc-docker-haproxy mmooc-docker-tools"
+repos="matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmooc-docker-canvas canvas-lms mmooc-docker-haproxy mmooc-docker-tools"
 all_repos=". $repos"
 
 case $1 in
     clone)
         for X in $repos; do
-            if ! [ -e $X ]; then 
+            if ! [ -e $X ]; then
                 git clone git@github.com:matematikk-mooc/$X.git
             fi
         done
