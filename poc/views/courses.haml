@@ -1,15 +1,24 @@
 %h2 Session
 %pre
   = @session.inspect
-%h2 All courses
+%p
+  The access token stored in the session can be used in curl commands to experiment with the API.
+%pre
+  curl -H "Authorization: Bearer ACCESS-TOKEN" URL
+
+%h2 All courses for Account # 1
+%p
+  = @courses_url
 %pre
   = @courses.inspect
-%ol
+%ul
   - @courses.each do |c|
     %li
       = c["name"]
 
 %h2 A course
+%p
+  = @course_1_url
 %pre
   = @course_1.inspect
 %p
