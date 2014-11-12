@@ -1,0 +1,16 @@
+%h2 Session
+%pre
+  = @session.inspect
+%h2 All courses
+%pre
+  = @courses.inspect
+%ol
+  - @courses.each do |c|
+    %li
+      = c["name"]
+
+%h2 A course
+%pre
+  = @course_1.inspect
+%p
+  = @course_1["syllabus_body"]

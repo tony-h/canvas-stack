@@ -9,7 +9,7 @@ Dotenv.load
 # http://tools.ietf.org/html/rfc6749#section-1.2
 # https://canvas.instructure.com/doc/api/file.oauth.html
 
-enable :session
+enable :sessions
 
 conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/")
 
@@ -47,10 +47,18 @@ get '/grant' do
 end
 
 get '/courses' do
-  res = conn.get "/api/v1/accounts/1/courses" do |req|
+  @session = session
+
+  res = conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
     req.headers['Authorization'] = "Bearer #{session['access_token']}"
   end
   @courses = JSON.parse res.body
+
+  res = conn.get "/api/v1/courses/2", {'include[]' => 'syllabus_body'} do |req|
+    req.headers['Authorization'] = "Bearer #{session['access_token']}"
+  end
+  @course_1 = JSON.parse res.body
+
   haml :courses
 end
 
