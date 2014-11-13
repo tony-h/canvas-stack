@@ -15,11 +15,29 @@
   - @courses.each do |c|
     %li
       = c["name"]
+%p
+  There doesn't seem to be any way to get the course descriptions
+  from this API call. Need to do new API calls for each course. See below.
+
 
 %h2 A course
 %p
   = @course_1_url
 %pre
   = @course_1.inspect
+%ul
+  %li
+    = @course_1["name"]
+  %li
+    = @course_1["syllabus_body"]
+
+
+%h2 My Courses
 %p
-  = @course_1["syllabus_body"]
+  = @my_courses_url
+%pre
+  = @my_courses.inspect
+%ul
+  - @my_courses.each do |c|
+    %li
+      = c["name"]

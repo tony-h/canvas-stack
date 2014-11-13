@@ -4,3 +4,6 @@ gem "sinatra"
 gem "faraday"
 gem "dotenv"
 gem "haml"
+
+gem "thin"
+gem "pry"

@@ -26,10 +26,6 @@ end
 
 enable :sessions
 
-conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/") do |c|
-  c.use URLCapture
-  c.adapter :net_http
-end
 
 get '/' do
   response_type = "code"
@@ -51,6 +47,8 @@ get '/grant' do
   state = request["state"]
   redirect_uri = url("/token")
 
+  conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/")
+
   res = conn.post "/login/oauth2/token", {
                     client_id: ENV['API_CLIENT_ID'],
                     client_secret: ENV['API_CLIENT_KEY'],
@@ -66,6 +64,11 @@ end
 get '/courses' do
   @session = session
 
+  conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/") do |c|
+    c.use URLCapture
+    c.adapter :net_http
+  end
+
   res = conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
     req.headers['Authorization'] = "Bearer #{session['access_token']}"
   end
@@ -77,6 +80,12 @@ get '/courses' do
   end
   @course_1_url = $last_url
   @course_1 = JSON.parse res.body
+
+  res = conn.get "/api/v1/courses" do |req|
+    req.headers['Authorization'] = "Bearer #{session['access_token']}"
+  end
+  @my_courses_url = $last_url
+  @my_courses = JSON.parse res.body
 
   haml :courses
 end
