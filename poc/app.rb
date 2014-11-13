@@ -27,6 +27,13 @@ end
 enable :sessions
 
 
+helpers do
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+end
+
+
 get '/' do
   response_type = "code"
   redirect_uri = url("/grant")
@@ -81,7 +88,9 @@ get '/courses' do
   @course_1_url = $last_url
   @course_1 = JSON.parse res.body
 
-  res = conn.get "/api/v1/courses" do |req|
+  res = conn.get "/api/v1/courses", {
+                   'include' => ['syllabus_body', 'course_progress'],
+                 } do |req|
     req.headers['Authorization'] = "Bearer #{session['access_token']}"
   end
   @my_courses_url = $last_url

@@ -1,43 +1,67 @@
 %h2 Session
 %pre
-  = @session.inspect
+  = h (JSON.pretty_generate @session.to_h)
 %p
   The access token stored in the session can be used in curl commands to experiment with the API.
 %pre
   curl -H "Authorization: Bearer ACCESS-TOKEN" URL
 
 %h2 All courses for Account # 1
-%p
-  = @courses_url
-%pre
-  = @courses.inspect
+%ul
+  %li
+    %a(href="https://canvas.instructure.com/doc/api/accounts.html#method.accounts.courses_api")
+      Documentation
+  %li
+    = @courses_url
+%h4 Response
 %ul
   - @courses.each do |c|
     %li
       = c["name"]
-%p
-  There doesn't seem to be any way to get the course descriptions
+.alert.alert-info
+  Note: There doesn't seem to be any way to get the course descriptions
   from this API call. Need to do new API calls for each course. See below.
+%pre
+  = h (JSON.pretty_generate @courses)
 
 
 %h2 A course
-%p
-  = @course_1_url
-%pre
-  = @course_1.inspect
+%ul
+  %li
+    %a(href="https://canvas.instructure.com/doc/api/courses.html#method.courses.show")
+      Documentation
+  %li
+    = @course_1_url
+%h4 Response
 %ul
   %li
     = @course_1["name"]
   %li
     = @course_1["syllabus_body"]
+%pre
+  = h (JSON.pretty_generate @course_1)
 
 
 %h2 My Courses
-%p
-  = @my_courses_url
-%pre
-  = @my_courses.inspect
+%ul
+  %li
+    %a(href="https://canvas.instructure.com/doc/api/courses.html#method.courses.index")
+      Documentation
+  %li
+    = @my_courses_url
+%h4 Response
+- p @my_courses
 %ul
   - @my_courses.each do |c|
     %li
-      = c["name"]
+      %p
+        = c["name"]
+      %ul
+        %li
+          = c["syllabus_body"]
+        %li
+          .progress
+            .progress-bar(role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;")
+              60%
+%pre
+  = h (JSON.pretty_generate @my_courses)
