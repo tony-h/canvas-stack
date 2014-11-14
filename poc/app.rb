@@ -33,6 +33,13 @@ helpers do
   end
 end
 
+def log_faraday_ex
+  yield
+rescue Faraday::Error => e
+  puts "ERROR: #$last_url"
+  p e.response
+  raise
+end
 
 get '/' do
   response_type = "code"
@@ -73,28 +80,31 @@ get '/courses' do
 
   conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/") do |c|
     c.use URLCapture
+    c.use Faraday::Response::RaiseError
     c.adapter :net_http
   end
 
-  res = conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
-    req.headers['Authorization'] = "Bearer #{session['access_token']}"
-  end
-  @courses_url = $last_url
-  @courses = JSON.parse res.body
+  log_faraday_ex do
+    res = conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
+      req.headers['Authorization'] = "Bearer #{session['access_token']}"
+    end
+    @courses_url = $last_url
+    @courses = JSON.parse res.body
 
-  res = conn.get "/api/v1/courses/2", {'include[]' => 'syllabus_body'} do |req|
-    req.headers['Authorization'] = "Bearer #{session['access_token']}"
-  end
-  @course_1_url = $last_url
-  @course_1 = JSON.parse res.body
+    res = conn.get "/api/v1/courses/2", {'include[]' => 'syllabus_body'} do |req|
+      req.headers['Authorization'] = "Bearer #{session['access_token']}"
+    end
+    @course_1_url = $last_url
+    @course_1 = JSON.parse res.body
 
-  res = conn.get "/api/v1/courses", {
-                   'include' => ['syllabus_body', 'course_progress'],
-                 } do |req|
-    req.headers['Authorization'] = "Bearer #{session['access_token']}"
+    res = conn.get "/api/v1/courses", {
+                     'include' => ['syllabus_body', 'course_progress'],
+                   } do |req|
+      req.headers['Authorization'] = "Bearer #{session['access_token']}"
+    end
+    @my_courses_url = $last_url
+    @my_courses = JSON.parse res.body
   end
-  @my_courses_url = $last_url
-  @my_courses = JSON.parse res.body
 
   haml :courses
 end
