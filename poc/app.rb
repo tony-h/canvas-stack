@@ -41,6 +41,14 @@ rescue Faraday::Error => e
   raise
 end
 
+$conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/") do |c|
+  c.use Faraday::Request::UrlEncoded
+  c.use Faraday::Response::Logger
+  c.use URLCapture
+  c.use Faraday::Response::RaiseError
+  c.adapter :net_http
+end
+
 get '/' do
   response_type = "code"
   redirect_uri = url("/grant")
@@ -61,15 +69,16 @@ get '/grant' do
   state = request["state"]
   redirect_uri = url("/token")
 
-  conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/")
-
-  res = conn.post "/login/oauth2/token", {
-                    client_id: ENV['API_CLIENT_ID'],
-                    client_secret: ENV['API_CLIENT_KEY'],
-                    redirect_uri: redirect_uri,
-                    code: code,
-                  }
+  res = log_faraday_ex do
+    $conn.post "/login/oauth2/token", {
+                 client_id: ENV['API_CLIENT_ID'],
+                 client_secret: ENV['API_CLIENT_KEY'],
+                 redirect_uri: redirect_uri,
+                 code: code,
+               }
+  end
   res = JSON.parse res.body
+  p res
   session['access_token'] = res['access_token']
 
   redirect '/courses'
@@ -78,26 +87,22 @@ end
 get '/courses' do
   @session = session
 
-  conn = Faraday.new(url: "http://#{ENV['API_HOST']}:#{ENV['API_PORT']}/") do |c|
-    c.use URLCapture
-    c.use Faraday::Response::RaiseError
-    c.adapter :net_http
-  end
+  p "TOKEN: ", session
 
   log_faraday_ex do
-    res = conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
+    res = $conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
       req.headers['Authorization'] = "Bearer #{session['access_token']}"
     end
     @courses_url = $last_url
     @courses = JSON.parse res.body
 
-    res = conn.get "/api/v1/courses/2", {'include[]' => 'syllabus_body'} do |req|
+    res = $conn.get "/api/v1/courses/1", {'include[]' => 'syllabus_body'} do |req|
       req.headers['Authorization'] = "Bearer #{session['access_token']}"
     end
     @course_1_url = $last_url
     @course_1 = JSON.parse res.body
 
-    res = conn.get "/api/v1/courses", {
+    res = $conn.get "/api/v1/courses", {
                      'include' => ['syllabus_body', 'course_progress'],
                    } do |req|
       req.headers['Authorization'] = "Bearer #{session['access_token']}"
