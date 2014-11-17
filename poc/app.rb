@@ -78,7 +78,7 @@ get '/grant' do
                }
   end
   res = JSON.parse res.body
-  p res
+  puts "TOKEN: ", session['access_token']
   session['access_token'] = res['access_token']
 
   redirect '/courses'
@@ -86,8 +86,6 @@ end
 
 get '/courses' do
   @session = session
-
-  p "TOKEN: ", session
 
   log_faraday_ex do
     res = $conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
