@@ -60,8 +60,16 @@
         %li
           = c["syllabus_body"]
         %li
+          Requirements: #{c["course_progress"]["requirement_count"]}
+        %li
+          Completed: #{c["course_progress"]["requirement_completed_count"]}
+        %li
+          Next: #{c["course_progress"]["next_requirement_url"]}
+        %li
+          Percent: #{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}
+        %li
           .progress
-            .progress-bar(role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;")
-              60%
+            .progress-bar(role="progressbar" aria-valuenow="#{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}" Aria-valuemin="0" aria-valuemax="100" style="width: #{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}%;")
+              #{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}%
 %pre
   = h (JSON.pretty_generate @my_courses)
