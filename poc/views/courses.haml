@@ -6,7 +6,7 @@
 %pre
   curl -H "Authorization: Bearer ACCESS-TOKEN" URL
 
-%h2 All courses for Account # 1
+%h2 All courses for Account # #{$account_id}
 %ul
   %li
     %a(href="https://canvas.instructure.com/doc/api/accounts.html#method.accounts.courses_api")

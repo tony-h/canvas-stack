@@ -11,6 +11,7 @@ require 'json'
 Dotenv.load
 
 $last_url = ""
+$account_id = ENV['ACCOUNT_ID']
 
 class URLCapture < Faraday::Middleware
 
@@ -88,13 +89,14 @@ get '/courses' do
   @session = session
 
   log_faraday_ex do
-    res = $conn.get "/api/v1/accounts/1/courses", {published: true} do |req|
+    res = $conn.get "/api/v1/accounts/#$account_id/courses", {published: true} do |req|
       req.headers['Authorization'] = "Bearer #{session['access_token']}"
     end
     @courses_url = $last_url
     @courses = JSON.parse res.body
 
-    res = $conn.get "/api/v1/courses/1", {'include[]' => 'syllabus_body'} do |req|
+    id = @courses.first["id"]
+    res = $conn.get "/api/v1/courses/#{id}", {'include[]' => 'syllabus_body'} do |req|
       req.headers['Authorization'] = "Bearer #{session['access_token']}"
     end
     @course_1_url = $last_url
