@@ -57,7 +57,7 @@ docker_run_web() {
 
 docker_run_jobs() {
     local image=$(mm_image_name mmooc/canvas)
-    local command="docker run --env-file=env -d -P --volumes-from=web-data --link db:db --name=jobs $image /opt/canvas-lms/script/canvas_init run"
+    local command="docker run --env-file=env -d -P --volumes-from=web-data --link=db:db --link=cache:cache --name=jobs $image /opt/canvas-lms/script/canvas_init run"
     echo $command
     $command || true
 }
@@ -130,7 +130,7 @@ mm_start() {
 
 mm_init_schema() {
     local image=$(mm_image_name mmooc/canvas)
-    docker run --rm --env-file=env -w /opt/canvas-lms --link db:db $image bundle exec rake db:initial_setup
+    docker run --rm --env-file=env -w /opt/canvas-lms --link=db:db --link=cache:cache $image bundle exec rake db:initial_setup
 }
 
 
