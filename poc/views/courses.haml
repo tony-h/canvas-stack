@@ -50,7 +50,6 @@
   %li
     = @my_courses_url
 %h4 Response
-- p @my_courses
 %ul
   - @my_courses.each do |c|
     %li
@@ -73,3 +72,17 @@
               #{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}%
 %pre
   = h (JSON.pretty_generate @my_courses)
+
+%h2 Modules
+%ul
+  %li
+    %a(href="https://canvas.instructure.com/doc/api/modules.html#method.context_modules_api.index")
+      Documentation
+  %li
+    = @modules_url
+%h4 Response
+%ol
+  - @modules.each do |m|
+    %li #{m['name']}
+%pre
+  = h (JSON.pretty_generate @modules)
