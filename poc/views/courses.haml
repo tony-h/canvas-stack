@@ -52,6 +52,7 @@
 %h4 Response
 %ul
   - @my_courses.each do |c|
+    - percent = 100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]
     %li
       %p
         = c["name"]
@@ -65,11 +66,11 @@
         %li
           Next: #{c["course_progress"]["next_requirement_url"]}
         %li
-          Percent: #{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}
+          Percent: #{percent}
         %li
           .progress
-            .progress-bar(role="progressbar" aria-valuenow="#{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}" Aria-valuemin="0" aria-valuemax="100" style="width: #{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}%;")
-              #{100*c["course_progress"]["requirement_completed_count"] / c["course_progress"]["requirement_count"]}%
+            .progress-bar(role="progressbar" aria-valuenow="#{percent}" Aria-valuemin="0" aria-valuemax="100" style="width: #{percent}%;")
+              #{percent}%
 %pre
   = h (JSON.pretty_generate @my_courses)
 
@@ -83,6 +84,16 @@
 %h4 Response
 %ol
   - @modules.each do |m|
-    %li #{m['name']}
+    - percent = m['items'].length == 0 ? 100 : (100 * m['items'].reduce(0) {|a, i| i["completion_requirement"]['completed'] ? a + 1 : a}) / m['items'].length
+    %li
+      %p #{m['name']}
+      %ul
+        %li
+          .progress
+            .progress-bar(role="progressbar" aria-valuenow="#{percent}" Aria-valuemin="0" aria-valuemax="100" style="width: #{percent}%;")
+              #{percent}%
+.alert.alert-info
+  Note: From API documentation: Callers must be prepared to use the List Module
+  Items API if items are not returned.
 %pre
   = h (JSON.pretty_generate @modules)
