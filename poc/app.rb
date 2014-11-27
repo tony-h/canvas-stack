@@ -91,6 +91,7 @@ get '/grant' do
 end
 
 get '/courses' do
+
   @session = session
 
   $conn.headers['Authorization'] = "Bearer #{session['access_token']}"
@@ -105,8 +106,6 @@ get '/courses' do
     @course_1_url = $last_url
     @course_1 = JSON.parse res.body
 
-    # FIXME /api/v1/courses/:course_id/front_page
-
     res = $conn.get "/api/v1/courses", {
                       'include' => ['syllabus_body', 'course_progress'],
                     }
@@ -117,6 +116,11 @@ get '/courses' do
     res = $conn.get "/api/v1/courses/#{course_id}/modules", {include: %w(items)}
     @modules_url = $last_url
     @modules = JSON.parse res.body
+
+    course_id = @my_courses.first['id']
+    res = $conn.get "/api/v1/courses/#{course_id}/front_page"
+    @front_page_url = $last_url
+    @front_page = JSON.parse res.body
 
   end
 

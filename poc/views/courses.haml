@@ -6,7 +6,8 @@
 %pre
   curl -H "Authorization: Bearer ACCESS-TOKEN" URL
 
-%h2 All courses for Account # #{$account_id}
+%h2 All courses
+%p For a given acccount (department)
 %ul
   %li
     %a(href="https://canvas.instructure.com/doc/api/accounts.html#method.accounts.courses_api")
@@ -26,6 +27,7 @@
 
 
 %h2 A course
+%p Run this API call to get the course description.
 %ul
   %li
     %a(href="https://canvas.instructure.com/doc/api/courses.html#method.courses.show")
@@ -43,6 +45,7 @@
 
 
 %h2 My Courses
+%p List all courses you are enrolled in.
 %ul
   %li
     %a(href="https://canvas.instructure.com/doc/api/courses.html#method.courses.index")
@@ -74,7 +77,7 @@
 %pre
   = h (JSON.pretty_generate @my_courses)
 
-%h2 Modules
+%h2 Modules for a given course
 %ul
   %li
     %a(href="https://canvas.instructure.com/doc/api/modules.html#method.context_modules_api.index")
@@ -86,14 +89,36 @@
   - @modules.each do |m|
     - percent = m['items'].length == 0 ? 100 : (100 * m['items'].reduce(0) {|a, i| i["completion_requirement"]['completed'] ? a + 1 : a}) / m['items'].length
     %li
-      %p #{m['name']}
+      %p
+        = m['name']
+        %span(class="#{m['state'] == 'locked' ? 'glyphicon glyphicon-lock' : ''}")
       %ul
         %li
           .progress
             .progress-bar(role="progressbar" aria-valuenow="#{percent}" Aria-valuemin="0" aria-valuemax="100" style="width: #{percent}%;")
               #{percent}%
+        - m['items'].each do |i|
+          %li
+            = i['title']
+            %span(class="#{i['completion_requirement']['completed'] ? 'glyphicon glyphicon-ok' : ''}")
 .alert.alert-info
   Note: From API documentation: Callers must be prepared to use the List Module
   Items API if items are not returned.
+.alert.alert-info
+  Note: Should probably manually filter modules and items on `published = true`.
+  Doesn't seem to be way to filter on this in the API.
 %pre
   = h (JSON.pretty_generate @modules)
+
+%h2 Course front page
+%ul
+  %li
+    %a(href="https://canvas.instructure.com/doc/api/pages.html#method.wiki_pages_api.show_front_page")
+      Documentation
+  %li
+    = @front_page_url
+%h4 Response
+%div
+  = @front_page['body']
+%pre
+  = h (JSON.pretty_generate @front_page)
