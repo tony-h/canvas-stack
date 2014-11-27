@@ -3,7 +3,16 @@
 set -e
 
 canvas_dir=$(pwd)/canvas-lms
-use_local_image=false 
+use_local_image=false
+
+mm_help_build() {
+    cat <<EOF
+Usage: mm build IMAGE
+
+IMAGE = web|db|cache|ha_proxy
+
+EOF
+}
 
 mm_build() {
     case $1 in
@@ -30,7 +39,7 @@ mm_image_name() {
         echo "$1:local"
     else
         echo $1
-    fi 
+    fi
 }
 
 docker_run() {
@@ -67,15 +76,15 @@ docker_run_haproxy() {
 }
 
 container_exists() {
-    docker inspect "$1" > /dev/null 2>&1 
+    docker inspect "$1" > /dev/null 2>&1
 }
 
 mm_start_data() {
-    if ! container_exists web-data ; then 
+    if ! container_exists web-data ; then
         docker_run ubuntu:12.04 web-data "-v /var/log/apache2 -v /opt/canvas-lms/log -v /opt/canvas-lms/tmp/files"
     fi
-    
-    if ! container_exists db-data ; then 
+
+    if ! container_exists db-data ; then
         docker_run ubuntu:12.04 db-data "-v /var/lib/postgresql/9.1/main"
     fi
 }
@@ -194,7 +203,7 @@ mm_help_fixme() {
 mm_help() {
     case $1 in
         build)
-            mm_help_fixme
+            mm_help_build
             ;;
         boot)
             mm_help_fixme
