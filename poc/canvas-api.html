@@ -1,0 +1,432 @@
+
+<!-- saved from url=(0029)http://localhost:4567/courses -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <h1>
+        Matematikk-MOOC
+      </h1>
+      <h2>Session</h2>
+      <pre>{
+        "session_id": "6a2aced9b1664d9f6257d8c8adafc2cca70a5560a19ad2d308c7cb195a7bbeaa",
+        "csrf": "077dfbb751268eb121a49fb56b4c79bc",
+        "tracking": {
+          "HTTP_USER_AGENT": "5f7865c581656e4596d47d03073a64908580a9fc",
+          "HTTP_ACCEPT_LANGUAGE": "3c5bdb6d8c46dafc4a8887988dc6bbc5b8bd595f"
+        },
+        "access_token": "89Al1VTV6zE3uRdxdDquRQlcvaYJ6lGGaErSxuxDYI6P0vc159AF8waUKKitR6jA"
+      }</pre>
+      <p>
+        The access token stored in the session can be used in curl commands to experiment with the API.
+      </p>
+      <pre>curl -H "Authorization: Bearer ACCESS-TOKEN" URL</pre>
+      <h2>All courses</h2>
+      <p>For a given acccount (department)</p>
+      <ul>
+        <li>
+          <a href="https://canvas.instructure.com/doc/api/accounts.html#method.accounts.courses_api">
+            Documentation
+          </a>
+        </li>
+        <li>
+          http://192.168.59.103:49155/api/v1/accounts/1/courses?published=true
+        </li>
+      </ul>
+      <h4>Response</h4>
+      <ul>
+        <li>
+          Test POC
+        </li>
+      </ul>
+      <div class="alert alert-info">
+        Note: There doesn't seem to be any way to get the course descriptions
+        from this API call. Need to do new API calls for each course. See below.
+      </div>
+      <pre>[
+        {
+          "account_id": 1,
+          "course_code": "poc",
+          "default_view": "wiki",
+          "enrollment_term_id": 1,
+          "id": 2,
+          "name": "Test POC",
+          "start_at": "2014-11-04T16:52:02Z",
+          "end_at": null,
+          "public_syllabus": false,
+          "storage_quota_mb": 500,
+          "apply_assignment_group_weights": false,
+          "calendar": {
+            "ics": "http://192.168.59.103:49155/feeds/calendars/course_Cyf4flf2uRv8sramkyZXI4ixkls9p31WBxCZp9j1.ics"
+          },
+          "sis_course_id": null,
+          "integration_id": null,
+          "hide_final_grades": false,
+          "workflow_state": "available"
+        }
+      ]</pre>
+      <h2>A course</h2>
+      <p>Run this API call to get the course description.</p>
+      <ul>
+        <li>
+          <a href="https://canvas.instructure.com/doc/api/courses.html#method.courses.show">
+            Documentation
+          </a>
+        </li>
+        <li>
+          http://192.168.59.103:49155/api/v1/courses/2?include%5B%5D=syllabus_body
+        </li>
+      </ul>
+      <h4>Response</h4>
+      <ul>
+        <li>
+          Test POC
+        </li>
+        <li>
+          <p>This is a nice <strong>description</strong> of the <em>poc</em> <span style="text-decoration: underline;">course</span>.</p>
+        </li>
+      </ul>
+      <pre>{
+        "account_id": 1,
+        "course_code": "poc",
+        "default_view": "wiki",
+        "enrollment_term_id": 1,
+        "id": 2,
+        "name": "Test POC",
+        "start_at": "2014-11-04T16:52:02Z",
+        "syllabus_body": "&lt;p&gt;This is a nice &lt;strong&gt;description&lt;/strong&gt; of the &lt;em&gt;poc&lt;/em&gt; &lt;span style=\"text-decoration: underline;\"&gt;course&lt;/span&gt;.&lt;/p&gt;",
+        "end_at": null,
+        "public_syllabus": false,
+        "storage_quota_mb": 500,
+        "hide_final_grades": false,
+        "apply_assignment_group_weights": false,
+        "calendar": {
+          "ics": "http://192.168.59.103:49155/feeds/calendars/course_Cyf4flf2uRv8sramkyZXI4ixkls9p31WBxCZp9j1.ics"
+        },
+        "sis_course_id": null,
+        "integration_id": null,
+        "enrollments": [
+          {
+            "type": "teacher",
+            "role": "TeacherEnrollment",
+            "enrollment_state": "active"
+          },
+          {
+            "type": "student",
+            "role": "StudentEnrollment",
+            "enrollment_state": "active"
+          }
+        ],
+        "workflow_state": "available"
+      }</pre>
+      <h2>My Courses</h2>
+      <p>List all courses you are enrolled in.</p>
+      <ul>
+        <li>
+          <a href="https://canvas.instructure.com/doc/api/courses.html#method.courses.index">
+            Documentation
+          </a>
+        </li>
+        <li>
+          http://192.168.59.103:49155/api/v1/courses?include%5B%5D=syllabus_body&amp;include%5B%5D=course_progress
+        </li>
+      </ul>
+      <h4>Response</h4>
+      <ul>
+        <li>
+          <p>
+            Test POC
+          </p>
+          <ul>
+            <li>
+              <p>This is a nice <strong>description</strong> of the <em>poc</em> <span style="text-decoration: underline;">course</span>.</p>
+            </li>
+            <li>
+              Requirements: 3
+            </li>
+            <li>
+              Completed: 1
+            </li>
+            <li>
+              Next:
+            </li>
+            <li>
+              Percent: 33
+            </li>
+            <li>
+              <div class="progress">
+                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="33" class="progress-bar" role="progressbar" style="width: 33%;">
+                  33%
+                </div>
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <pre>[
+        {
+          "account_id": 1,
+          "course_code": "poc",
+          "default_view": "wiki",
+          "enrollment_term_id": 1,
+          "id": 2,
+          "name": "Test POC",
+          "start_at": "2014-11-04T16:52:02Z",
+          "syllabus_body": "&lt;p&gt;This is a nice &lt;strong&gt;description&lt;/strong&gt; of the &lt;em&gt;poc&lt;/em&gt; &lt;span style=\"text-decoration: underline;\"&gt;course&lt;/span&gt;.&lt;/p&gt;",
+          "end_at": null,
+          "public_syllabus": false,
+          "storage_quota_mb": 500,
+          "course_progress": {
+            "requirement_count": 3,
+            "requirement_completed_count": 1,
+            "next_requirement_url": null,
+            "completed_at": null
+          },
+          "apply_assignment_group_weights": false,
+          "calendar": {
+            "ics": "http://192.168.59.103:49155/feeds/calendars/course_Cyf4flf2uRv8sramkyZXI4ixkls9p31WBxCZp9j1.ics"
+          },
+          "sis_course_id": null,
+          "integration_id": null,
+          "enrollments": [
+            {
+              "type": "teacher",
+              "role": "TeacherEnrollment",
+              "enrollment_state": "active"
+            },
+            {
+              "type": "student",
+              "role": "StudentEnrollment",
+              "enrollment_state": "active"
+            }
+          ],
+          "hide_final_grades": false,
+          "workflow_state": "available"
+        }
+      ]</pre>
+      <h2>Modules for a given course</h2>
+      <ul>
+        <li>
+          <a href="https://canvas.instructure.com/doc/api/modules.html#method.context_modules_api.index">
+            Documentation
+          </a>
+        </li>
+        <li>
+          http://192.168.59.103:49155/api/v1/courses/2/modules?include%5B%5D=items
+        </li>
+      </ul>
+      <h4>Response</h4>
+      <ol>
+        <li>
+          <p>
+            Module 1
+            <span class=""></span>
+          </p>
+          <ul>
+            <li>
+              <div class="progress">
+                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" class="progress-bar" role="progressbar" style="width: 50%;">
+                  50%
+                </div>
+              </div>
+            </li>
+            <li>
+              A1
+              <span class="glyphicon glyphicon-ok"></span>
+            </li>
+            <li>
+              A2
+              <span class=""></span>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <p>
+            Module 2
+            <span class="glyphicon glyphicon-lock"></span>
+          </p>
+          <ul>
+            <li>
+              <div class="progress">
+                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="progress-bar" role="progressbar" style="width: 0%;">
+                  0%
+                </div>
+              </div>
+            </li>
+            <li>
+              Q1
+              <span class=""></span>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <p>
+            Module 3
+            <span class=""></span>
+          </p>
+          <ul>
+            <li>
+              <div class="progress">
+                <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" class="progress-bar" role="progressbar" style="width: 100%;">
+                  100%
+                </div>
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ol>
+      <div class="alert alert-info">
+        Note: From API documentation: Callers must be prepared to use the List Module
+        Items API if items are not returned.
+      </div>
+      <div class="alert alert-info">
+        Note: Should probably manually filter modules and items on `published = true`.
+        Doesn't seem to be way to filter on this in the API.
+      </div>
+      <pre>[
+        {
+          "id": 5,
+          "name": "Module 1",
+          "position": 1,
+          "unlock_at": null,
+          "require_sequential_progress": false,
+          "publish_final_grade": false,
+          "prerequisite_module_ids": [
+      
+          ],
+          "state": "started",
+          "completed_at": null,
+          "published": true,
+          "items_count": 2,
+          "items_url": "http://192.168.59.103:49155/api/v1/courses/2/modules/5/items",
+          "items": [
+            {
+              "id": 25,
+              "indent": 0,
+              "position": 1,
+              "title": "A1",
+              "type": "Assignment",
+              "module_id": 5,
+              "html_url": "http://192.168.59.103:49155/courses/2/modules/items/25",
+              "content_id": 1,
+              "url": "http://192.168.59.103:49155/api/v1/courses/2/assignments/1",
+              "completion_requirement": {
+                "type": "must_view",
+                "completed": true
+              },
+              "published": true
+            },
+            {
+              "id": 26,
+              "indent": 0,
+              "position": 2,
+              "title": "A2",
+              "type": "Assignment",
+              "module_id": 5,
+              "html_url": "http://192.168.59.103:49155/courses/2/modules/items/26",
+              "content_id": 2,
+              "url": "http://192.168.59.103:49155/api/v1/courses/2/assignments/2",
+              "completion_requirement": {
+                "type": "must_view",
+                "completed": false
+              },
+              "published": true
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "name": "Module 2",
+          "position": 2,
+          "unlock_at": null,
+          "require_sequential_progress": false,
+          "publish_final_grade": false,
+          "prerequisite_module_ids": [
+            5
+          ],
+          "state": "locked",
+          "completed_at": null,
+          "published": true,
+          "items_count": 1,
+          "items_url": "http://192.168.59.103:49155/api/v1/courses/2/modules/6/items",
+          "items": [
+            {
+              "id": 27,
+              "indent": 0,
+              "position": 1,
+              "title": "Q1",
+              "type": "Quiz",
+              "module_id": 6,
+              "html_url": "http://192.168.59.103:49155/courses/2/modules/items/27",
+              "content_id": 1,
+              "url": "http://192.168.59.103:49155/api/v1/courses/2/quizzes/1",
+              "completion_requirement": {
+                "type": "must_submit"
+              },
+              "published": true
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "name": "Module 3",
+          "position": 3,
+          "unlock_at": null,
+          "require_sequential_progress": false,
+          "publish_final_grade": false,
+          "prerequisite_module_ids": [
+      
+          ],
+          "state": "completed",
+          "completed_at": "2014-11-04T17:07:26Z",
+          "published": true,
+          "items_count": 0,
+          "items_url": "http://192.168.59.103:49155/api/v1/courses/2/modules/7/items",
+          "items": [
+      
+          ]
+        }
+      ]</pre>
+      <h2>Course front page</h2>
+      <ul>
+        <li>
+          <a href="https://canvas.instructure.com/doc/api/pages.html#method.wiki_pages_api.show_front_page">
+            Documentation
+          </a>
+        </li>
+        <li>
+          http://192.168.59.103:49155/api/v1/courses/2/front_page
+        </li>
+      </ul>
+      <h4>Response</h4>
+      <div>
+        <p>This is the front page</p>
+      </div>
+      <pre>{
+        "created_at": "2014-11-04T16:53:22Z",
+        "editing_roles": "teachers",
+        "title": "Front Page",
+        "updated_at": "2014-11-04T16:53:40Z",
+        "url": "front-page",
+        "hide_from_students": false,
+        "page_id": 23,
+        "last_edited_by": {
+          "id": 1,
+          "display_name": "a@foo.com",
+          "avatar_image_url": "https://example.com/images/messages/avatar-50.png",
+          "html_url": "http://192.168.59.103:49155/courses/2/users/1"
+        },
+        "published": true,
+        "front_page": true,
+        "html_url": "http://192.168.59.103:49155/courses/2/pages/front-page",
+        "locked_for_user": false,
+        "body": "&lt;p&gt;This is the front page&lt;/p&gt;"
+      }</pre>
+    </div>
+    <script src="./canvas-api_files/jquery.js"></script>
+    <script src="./canvas-api_files/bootstrap.min.js"></script>
+  
+
+</body></html>
