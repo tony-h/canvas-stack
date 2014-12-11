@@ -1,6 +1,6 @@
 #! /bin/bash
 
-repos="matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmooc-docker-canvas canvas-lms mmooc-docker-haproxy mmooc-docker-tools"
+repos="frontend matematikk-mooc.github.io mmooc-docker-postgresql mmooc-docker-redis mmooc-docker-canvas canvas-lms mmooc-docker-haproxy mmooc-docker-tools"
 all_repos=". $repos"
 
 case $1 in
