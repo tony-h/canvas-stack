@@ -5,6 +5,12 @@ set -e
 canvas_dir=$(pwd)/canvas-lms
 use_local_image=false
 
+mm_docker() {
+    echo "$@"
+    docker "$@"
+}
+
+
 mm_help_build() {
     cat <<EOF
 Usage: mm build IMAGE
@@ -17,16 +23,16 @@ EOF
 mm_build() {
     case $1 in
         web)
-            docker build -t mmooc/canvas:local mmooc-docker-canvas
+            mm_docker build -t mmooc/canvas:local mmooc-docker-canvas
             ;;
         db)
-            docker build -t mmooc/db:local mmooc-docker-postgresql
+            mm_docker build -t mmooc/db:local mmooc-docker-postgresql
             ;;
         cache)
-            docker build -t mmooc/cache:local mmooc-docker-redis
+            mm_docker build -t mmooc/cache:local mmooc-docker-redis
             ;;
         haproxy)
-            docker build -t mmooc/haproxy:local mmooc-docker-haproxy
+            mm_docker build -t mmooc/haproxy:local mmooc-docker-haproxy
             ;;
         *)
             mm_help build
@@ -258,7 +264,7 @@ case $command in
         mm_help "$@"
         ;;
     initdb)
-        mm_init_db
+        mm_initdb
         ;;
     init-schema)
         mm_init_schema
@@ -273,7 +279,7 @@ case $command in
         docker run --rm -t -i -P --env-file=env --link db:db -w /opt/canvas-lms $image bundle exec rails "$@"
         ;;
     rails-dev)
-        docker run --rm -t -i -p 3000:3000 --env-file=env -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rails "$@"
+        docker run --rm -t -i -p 3000:3000 --env-file=env -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms mmooc/canvas bundle exec rails "$@"
         ;;
     rake)
         docker run --rm -t -i -P --env-file=env -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rake "$@"
