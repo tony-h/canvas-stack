@@ -31,7 +31,6 @@ SSL_CERT=
 # Outgoing email
 SMTP_HOST=smtp.example.com
 SMTP_PORT=25
-DOMAIN=example.com
 OUTGOING_EMAIL_ADDRESS=no-reply@example.com
 OUTGOING_EMAIL_NAME=Example
 
