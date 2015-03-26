@@ -1,4 +1,14 @@
 ######################################################################
+#
+# You only need to set the values in section 1 to get the system up
+# and running on your local machine.
+#
+
+######################################################################
+#
+#                       S E C T I O N   #   1
+#
+
 # Variables used on first time initialization of the Canvas database
 
 # E-mail address used for default administrator login
@@ -10,10 +20,14 @@ CANVAS_LMS_ADMIN_PASSWORD=
 # Account name seen by users, usually your organization name
 CANVAS_LMS_ACCOUNT_NAME=
 
-# opt_in, opt_out, or anonymized
+# Usage data gathering: opt_in, opt_out, or anonymized
 CANVAS_LMS_STATS_COLLECTION=opt_out
 
+
 ######################################################################
+#
+#                       S E C T I O N   #   2
+#
 
 # Domain name
 DOMAIN=canvas.example.com
@@ -28,9 +42,17 @@ RAILS_ENV=production
 # newlines substituted with percent characters (%).
 SSL_CERT=
 
+# SAML configuration
+SAML_ENTITY_ID=
+SAML_CONTACT_NAME=
+SAML_CONTACT_EMAIL=
+
 # Outgoing email
 SMTP_HOST=smtp.example.com
 SMTP_PORT=25
 OUTGOING_EMAIL_ADDRESS=no-reply@example.com
 OUTGOING_EMAIL_NAME=Example
 
+# Git (development only)
+GIT_AUTHOR_NAME=
+GIT_AUTHOR_EMAIL=
