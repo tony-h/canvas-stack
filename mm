@@ -64,9 +64,13 @@ docker_run() {
     local image=$(mm_image_name $1)
     local options=$3
 
-    local command="docker run --env-file=env -d -P $options --name=$container $image"
-    echo $command
-    $command || true
+    if ! container_exists $container ; then
+        local command="docker run --env-file=env -d -P $options --name=$container $image"
+        echo $command
+        $command || true
+    else
+        docker start $container
+    fi
 }
 
 docker_run_db() {
@@ -127,7 +131,7 @@ mm_start() {
             docker_run_db
             docker_run_cache
             docker_run_web
-            docker_run_haproxy
+            #docker_run_haproxy
             docker_run_jobs
             ;;
         data)
