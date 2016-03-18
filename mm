@@ -1,6 +1,5 @@
 #! /bin/bash
 
-set -e
 
 canvas_dir=$(pwd)/canvas-lms
 use_local_image=false
@@ -199,10 +198,16 @@ mm_boot() {
 
 mm_stop() {
     case $1 in
-        all)
-            for X in web haproxy cache db; do
-                echo "Stopping $X..."
+        services)
+            for X in web cache db; do
+                echo "Stopping & removing $X..."
                 docker stop $X
+                docker rm $X
+            done
+            ;;
+        data)
+            for X in db-data web-data; do
+                echo "Stopping & removing $X..."
                 docker rm $X
             done
             ;;
@@ -230,7 +235,10 @@ Commads:
     pull   Pull new versions of docker images
     rails  FIXME
     rake   FIXME
+    reboot Stop & remove web, cache, db services, pull new images, restart.
+    reset  Stop & remove web, cache, db services; remove web-data and db-data, pull new images, restart.
     start  Start one or all docker containers
+    url    Print the url from which you can access canvas
 EOF
 }
 
@@ -319,6 +327,21 @@ case $command in
         ;;
     rake)
         docker run --rm -t -i -P --env-file=env -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rake "$@"
+        ;;
+    reboot)
+        mm_stop services
+        for X in db canvas cache; do
+            docker pull mmooc/$X
+        done
+        mm_boot
+        ;;
+    reset)
+        mm_stop services
+        mm_stop data
+        for X in db canvas cache; do
+            docker pull mmooc/$X
+        done
+        mm_boot
         ;;
     start)
         mm_start "$@"
