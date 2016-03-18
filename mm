@@ -43,6 +43,24 @@ mm_build() {
     esac
 }
 
+mm_url() {
+  echo "Finding network ports for the container named 'web'"
+
+  port=$(docker port web 80 | cut -d: -f2)
+
+  if which docker-machine >/dev/null 2>&1
+  then
+    echo "Found \"docker-machine\", guessing you're not on Linux. Getting ip address from VM."
+    addr=$(docker-machine ip)
+  else
+    echo "No \"docker-machine\" found, guessing you're on Linux. Using localhost."
+    addr="127.0.0.1"
+  fi
+
+  echo ""
+  echo "Canvas address: http://${addr}:${port}/"
+}
+
 mm_image_name() {
     if [ "$use_local_image" = true ]; then
         echo "$1:local"
@@ -307,6 +325,9 @@ case $command in
         ;;
     stop)
         mm_stop "$@"
+        ;;
+    url)
+        mm_url
         ;;
     *)
         mm_help
