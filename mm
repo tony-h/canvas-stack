@@ -177,7 +177,11 @@ mm_start() {
 
 mm_init_schema() {
     local image=$(mm_image_name mmooc/canvas)
-    docker run --rm --env-file=env -w /opt/canvas-lms --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache $image bundle exec rake db:initial_setup
+    echo "Schema setup is bugged and needs to run twice."
+    echo "Setting up schema for the first time. Output in init_schema.1.txt"
+    docker run --rm --env-file=env -w /opt/canvas-lms --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache $image bundle exec rake db:initial_setup >&2 2> init_schema.1.txt
+    echo "Second time's the charm. Output in init_schema.2.txt"
+    docker run --rm --env-file=env -w /opt/canvas-lms --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache $image bundle exec rake db:initial_setup >&2 2> init_schema.2.txt
 }
 
 
@@ -194,6 +198,7 @@ mm_boot() {
     mm_start cache
     mm_init_schema
     mm_start web
+    mm_url
 }
 
 mm_stop() {
