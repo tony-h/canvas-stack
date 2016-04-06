@@ -45,7 +45,8 @@ mm_build() {
 mm_url() {
   echo "Finding network ports for the container named 'web'"
 
-  port=$(docker port web 80 | cut -d: -f2)
+  port_http=$(docker port web 80 | cut -d: -f2)
+  port_https=$(docker port web 443 | cut -d: -f2)
 
   if which docker-machine >/dev/null 2>&1
   then
@@ -57,7 +58,9 @@ mm_url() {
   fi
 
   echo ""
-  echo "Canvas address: http://${addr}:${port}/"
+  echo "Canvas addresses:"
+  echo "  http://${addr}:${port_http}/"
+  echo "  https://${addr}:${port_https}/"
 }
 
 mm_image_name() {
