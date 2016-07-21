@@ -1,5 +1,13 @@
 #! /bin/bash
 
+## Configurable session vars
+#--------------------------------------
+
+CANVAS_CONTAINER=example.com/canvas
+HTTP_PORT=80
+HTTPS_PORT=443
+
+#--------------------------------------
 
 canvas_dir=$(pwd)/canvas-lms
 use_local_image=false
@@ -22,7 +30,7 @@ EOF
 mm_build() {
     case $1 in
         web)
-            mm_docker build -t mmooc/canvas:local mmooc-docker-canvas
+            mm_docker build -t $CANVAS_CONTAINER:local mmooc-docker-canvas
             ;;
         db)
             mm_docker build -t mmooc/db:local mmooc-docker-postgresql
@@ -85,9 +93,14 @@ docker_run() {
     local options=$3
 
     if ! container_exists $container ; then
-        local command="docker run --env-file=env -d -P $options --name=$container $image"
-        echo $command
-        $command || true
+		# If web, use the user-defined ports
+		if [ "$2" = "web" ]; then
+			local command="docker run --env-file=env -d -p $HTTP_PORT:$HTTP_PORT -p $HTTPS_PORT:$HTTPS_PORT $options --name=$container $image"
+		else
+			local command="docker run --env-file=env -d -P $options --name=$container $image"
+		fi
+		echo $command
+		$command || true
     else
         docker start $container
     fi
@@ -102,18 +115,18 @@ docker_run_cache() {
 }
 
 docker_run_web() {
-    docker_run mmooc/canvas web "--volumes-from=$(mm_container_name web-data) --link $(mm_container_name db):db --link $(mm_container_name cache):cache"
+    docker_run $CANVAS_CONTAINER web "--volumes-from=$(mm_container_name web-data) --link $(mm_container_name db):db --link $(mm_container_name cache):cache"
 }
 
 docker_run_jobs() {
-    local image=$(mm_image_name mmooc/canvas)
+    local image=$(mm_image_name $CANVAS_CONTAINER)
     local command="docker run --env-file=env -d -P --volumes-from=$(mm_container_name web-data) --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache --name=jobs $image /opt/canvas-lms/script/canvas_init run"
     echo $command
     $command || true
 }
 
 docker_run_haproxy() {
-    docker_run mmooc/canvas haproxy "--link $(mm_container_name web):web"
+    docker_run $CANVAS_CONTAINER haproxy "--link $(mm_container_name web):web"
 }
 
 container_exists() {
@@ -179,7 +192,7 @@ mm_start() {
 }
 
 mm_init_schema() {
-    local image=$(mm_image_name mmooc/canvas)
+    local image=$(mm_image_name $CANVAS_CONTAINER)
     echo "Schema setup is bugged and needs to run twice."
     echo "Setting up schema for the first time. Output in init_schema.1.txt"
     docker run --rm --env-file=env -w /opt/canvas-lms --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache $image bundle exec rake db:initial_setup >&2 2> init_schema.1.txt
@@ -320,26 +333,36 @@ case $command in
         ;;
     pull)
         for X in db canvas cache haproxy tools dev; do
-            docker pull mmooc/$X
+			## If canvas, use the custom canvas container
+			if [ "$X" = "canvas" ]; then
+				docker pull $CANVAS_CONTAINER
+			else
+				docker pull mmooc/$X
+			fi
         done
         ;;
     rails)
-        image=$(mm_image_name mmooc/canvas)
+        image=$(mm_image_name $CANVAS_CONTAINER)
         docker run --rm -t -i -P --env-file=env --link db:db -w /opt/canvas-lms $image bundle exec rails "$@"
         ;;
     rails-dev)
-        docker run --rm -t -i -p 3000:3000 --env-file=env -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms mmooc/canvas bundle exec rails "$@"
+        docker run --rm -t -i -p 3000:3000 --env-file=env -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms $CANVAS_CONTAINER bundle exec rails "$@"
         ;;
     dev)
         docker run -t -i -p 3001:3000 --name=$(mm_container_name dev) --env-file=env -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms mmooc/dev
         ;;
     rake)
-        docker run --rm -t -i -P --env-file=env -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms mmooc/canvas bundle exec rake "$@"
+        docker run --rm -t -i -P --env-file=env -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms $CANVAS_CONTAINER bundle exec rake "$@"
         ;;
     reboot)
         mm_stop services
         for X in db canvas cache; do
-            docker pull mmooc/$X
+			## If canvas, use the custom canvas container
+			if [ "$X" = "canvas" ]; then
+				docker pull $CANVAS_CONTAINER
+			else
+				docker pull mmooc/$X
+			fi
         done
         mm_boot
         ;;
@@ -347,7 +370,12 @@ case $command in
         mm_stop services
         mm_stop data
         for X in db canvas cache; do
-            docker pull mmooc/$X
+			## If canvas, use the custom canvas container
+			if [ "$X" = "canvas" ]; then
+				docker pull $CANVAS_CONTAINER
+			else
+				docker pull mmooc/$X
+			fi
         done
         mm_boot
         ;;
