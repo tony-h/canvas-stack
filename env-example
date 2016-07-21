@@ -48,8 +48,14 @@ SAML_CONTACT_NAME=
 SAML_CONTACT_EMAIL=
 
 # Outgoing email
-SMTP_HOST=smtp.example.com
-SMTP_PORT=25
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+EMAIL_ENABLE_STARTTLS_AUTO=true
+EMAIL_OPENSSL_VERIFY_MODE=none
+EMAIL_AUTHENTICATION=plain
+EMAIL_DOMAIN=smtp.gmail.com
+EMAIL_USER_NAME=no-reply@example.com
+EMAIL_PASSWORD=account-password
 OUTGOING_EMAIL_ADDRESS=no-reply@example.com
 OUTGOING_EMAIL_NAME=Example
 
