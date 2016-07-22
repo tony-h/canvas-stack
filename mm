@@ -22,7 +22,7 @@ mm_help_build() {
     cat <<EOF
 Usage: mm build IMAGE
 
-IMAGE = web|db|cache|ha_proxy
+IMAGE = web|db|cache|haproxy
 
 EOF
 }
@@ -94,7 +94,7 @@ docker_run() {
 
     if ! container_exists $container ; then
 		# If web, use the user-defined ports
-		if [ "$2" = "web" ]; then
+		if [ "$2" = "haproxy" ]; then
 			local command="docker run --env-file=env -d -p $HTTP_PORT:$HTTP_PORT -p $HTTPS_PORT:$HTTPS_PORT $options --name=$container $image"
 		else
 			local command="docker run --env-file=env -d -P $options --name=$container $image"
@@ -126,7 +126,7 @@ docker_run_jobs() {
 }
 
 docker_run_haproxy() {
-    docker_run $CANVAS_CONTAINER haproxy "--link $(mm_container_name web):web"
+    docker_run mmooc/haproxy haproxy "--link $(mm_container_name web):web"
 }
 
 container_exists() {
@@ -164,7 +164,7 @@ mm_start() {
             docker_run_db
             docker_run_cache
             docker_run_web
-            #docker_run_haproxy
+            docker_run_haproxy
             docker_run_jobs
             ;;
         data)
@@ -182,8 +182,8 @@ mm_start() {
         web)
             docker_run_web
             ;;
-        hapoxy)
-            docker_run_web
+        haproxy)
+            docker_run_haproxy
             ;;
         *)
             mm_help start
@@ -214,6 +214,7 @@ mm_boot() {
     mm_start cache
     mm_init_schema
     mm_start web
+    mm_start haproxy
     mm_url
 }
 
