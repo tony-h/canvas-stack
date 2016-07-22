@@ -3,7 +3,7 @@
 ## Configurable session vars
 #--------------------------------------
 
-CANVAS_CONTAINER=example.com/canvas
+CANVAS_CONTAINER=canvas-stack/canvas
 HTTP_PORT=80
 HTTPS_PORT=443
 
