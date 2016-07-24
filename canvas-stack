@@ -166,7 +166,6 @@ mm_start() {
             docker_run_cache
             docker_run_web
             docker_run_haproxy
-            docker_run_jobs
             ;;
         data)
             mm_start_data
