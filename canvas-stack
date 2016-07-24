@@ -9,6 +9,7 @@ HTTPS_PORT=443
 
 #--------------------------------------
 
+cd $(dirname $0)
 canvas_dir=$(pwd)/canvas-lms
 use_local_image=false
 
@@ -221,7 +222,7 @@ mm_boot() {
 mm_stop() {
     case $1 in
         services)
-            for X in web cache db; do
+            for X in web cache db haproxy; do
                 echo "Stopping & removing $X..."
                 docker stop $X
                 docker rm $X
@@ -357,7 +358,7 @@ case $command in
         ;;
     reboot)
         mm_stop services
-        for X in db canvas cache; do
+        for X in db canvas cache haproxy; do
 			## If canvas, use the custom canvas container
 			if [ "$X" = "canvas" ]; then
 				docker pull $CANVAS_CONTAINER
@@ -370,7 +371,7 @@ case $command in
     reset)
         mm_stop services
         mm_stop data
-        for X in db canvas cache; do
+        for X in db canvas cache haproxy; do
 			## If canvas, use the custom canvas container
 			if [ "$X" = "canvas" ]; then
 				docker pull $CANVAS_CONTAINER
