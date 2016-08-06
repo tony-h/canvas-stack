@@ -2,24 +2,22 @@
 
 ## Configurable session vars
 #--------------------------------------
-
-CANVAS_CONTAINER=canvas-stack/canvas
 HTTP_PORT=80
 HTTPS_PORT=443
-
+ENV=env
 #--------------------------------------
 
 cd $(dirname $0)
 canvas_dir=$(pwd)/canvas-lms
 use_local_image=false
 
-mm_docker() {
+cs_docker() {
     echo "$@"
     docker "$@"
 }
 
 
-mm_help_build() {
+cs_help_build() {
     cat <<EOF
 Usage: mm build IMAGE
 
@@ -28,30 +26,30 @@ IMAGE = web|db|cache|haproxy
 EOF
 }
 
-mm_build() {
+cs_build() {
     case $1 in
         web)
-            mm_docker build -t $CANVAS_CONTAINER:local mmooc-docker-canvas
+            cs_docker build -t canvas-stack/canvas:local docker-canvas
             ;;
         db)
-            mm_docker build -t mmooc/db:local mmooc-docker-postgresql
+            cs_docker build -t canvas-stack/db:local docker-postgresql
             ;;
         cache)
-            mm_docker build -t mmooc/cache:local mmooc-docker-redis
+            cs_docker build -t canvas-stack/cache:local docker-redis
             ;;
         dev)
-            mm_docker build -t mmooc/dev:local mmooc-docker-dev
+            cs_docker build -t canvas-stack/dev:local docker-dev
             ;;
         haproxy)
-            mm_docker build -t mmooc/haproxy:local mmooc-docker-haproxy
+            cs_docker build -t canvas-stack/haproxy:local docker-haproxy
             ;;
         *)
-            mm_help build
+            cs_help build
             ;;
     esac
 }
 
-mm_url() {
+cs_url() {
   echo "Finding network ports for the container named 'web'"
 
   port_http=$(docker port web 80 | cut -d: -f2)
@@ -72,7 +70,7 @@ mm_url() {
   echo "  https://${addr}:${port_https}/"
 }
 
-mm_image_name() {
+cs_image_name() {
     if [ "$use_local_image" = true ]; then
         echo "$1:local"
     else
@@ -80,7 +78,7 @@ mm_image_name() {
     fi
 }
 
-mm_container_name() {
+cs_container_name() {
     if [ "$use_local_image" = true ]; then
         echo "l$1"
     else
@@ -89,16 +87,16 @@ mm_container_name() {
 }
 
 docker_run() {
-    local container=$(mm_container_name $2)
-    local image=$(mm_image_name $1)
+    local container=$(cs_container_name $2)
+    local image=$(cs_image_name $1)
     local options=$3
 
     if ! container_exists $container ; then
 		# If web, use the user-defined ports
 		if [ "$2" = "haproxy" ]; then
-			local command="docker run --env-file=env -d -p $HTTP_PORT:$HTTP_PORT -p $HTTPS_PORT:$HTTPS_PORT $options --name=$container $image"
+			local command="docker run --env-file=$ENV -d -p $HTTP_PORT:$HTTP_PORT -p $HTTPS_PORT:$HTTPS_PORT $options --name=$container $image"
 		else
-			local command="docker run --env-file=env -d -P $options --name=$container $image"
+			local command="docker run --env-file=$ENV -d -P $options --name=$container $image"
 		fi
 		echo $command
 		$command || true
@@ -108,43 +106,43 @@ docker_run() {
 }
 
 docker_run_db() {
-    docker_run mmooc/db db "--volumes-from=$(mm_container_name db-data)"
+    docker_run canvas-stack/db db "--volumes-from=$(cs_container_name db-data)"
 }
 
 docker_run_cache() {
-    docker_run mmooc/cache cache
+    docker_run canvas-stack/cache cache
 }
 
 docker_run_web() {
-    docker_run $CANVAS_CONTAINER web "--volumes-from=$(mm_container_name web-data) --link $(mm_container_name db):db --link $(mm_container_name cache):cache"
+    docker_run canvas-stack/canvas web "--volumes-from=$(cs_container_name web-data) --link $(cs_container_name db):db --link $(cs_container_name cache):cache"
 }
 
 docker_run_jobs() {
-    local image=$(mm_image_name $CANVAS_CONTAINER)
-    local command="docker run --env-file=env -d -P --volumes-from=$(mm_container_name web-data) --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache --name=jobs $image /opt/canvas-lms/script/canvas_init run"
+    local image=$(cs_image_name canvas-stack/canvas)
+    local command="docker run --env-file=$ENV -d -P --volumes-from=$(cs_container_name web-data) --link=$(cs_container_name db):db --link=$(cs_container_name cache):cache --name=jobs $image /opt/canvas-lms/script/canvas_init run"
     echo $command
     $command || true
 }
 
 docker_run_haproxy() {
-    docker_run mmooc/haproxy haproxy "--link $(mm_container_name web):web"
+    docker_run canvas-stack/haproxy haproxy "--link $(cs_container_name web):web"
 }
 
 container_exists() {
     docker inspect "$1" > /dev/null 2>&1
 }
 
-mm_start_data() {
-    if ! container_exists $(mm_container_name web-data) ; then
-        docker run -v /var/log/apache2 -v /opt/canvas-lms/log -v /opt/canvas-lms/tmp/files --name=$(mm_container_name web-data) ubuntu:12.04
+cs_start_data() {
+    if ! container_exists $(cs_container_name web-data) ; then
+        docker run -v /var/log/apache2 -v /opt/canvas-lms/log -v /opt/canvas-lms/tmp/files --name=$(cs_container_name web-data) ubuntu:12.04
     fi
 
-    if ! container_exists $(mm_container_name db-data) ; then
-        docker run -v /var/lib/postgresql/9.1/main --name=$(mm_container_name db-data) ubuntu:12.04
+    if ! container_exists $(cs_container_name db-data) ; then
+        docker run -v /var/lib/postgresql/9.1/main --name=$(cs_container_name db-data) ubuntu:12.04
     fi
 }
 
-mm_help_start() {
+cs_help_start() {
     cat <<EOF
 Usage: mm start COMMAND
 
@@ -159,7 +157,7 @@ Commands
 EOF
 }
 
-mm_start() {
+cs_start() {
     case $1 in
         all)
             docker_run_db
@@ -168,7 +166,7 @@ mm_start() {
             docker_run_haproxy
             ;;
         data)
-            mm_start_data
+            cs_start_data
             ;;
         db)
             docker_run_db
@@ -186,39 +184,39 @@ mm_start() {
             docker_run_haproxy
             ;;
         *)
-            mm_help start
+            cs_help start
             ;;
     esac
 }
 
-mm_init_schema() {
-    local image=$(mm_image_name $CANVAS_CONTAINER)
+cs_init_schema() {
+    local image=$(cs_image_name canvas-stack/canvas)
     echo "Schema setup is bugged and needs to run twice."
     echo "Setting up schema for the first time. Output in init_schema.1.txt"
-    docker run --rm --env-file=env -w /opt/canvas-lms --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache $image bundle exec rake db:initial_setup >&2 2> init_schema.1.txt
+    docker run --rm --env-file=$ENV -w /opt/canvas-lms --link=$(cs_container_name db):db --link=$(cs_container_name cache):cache $image bundle exec rake db:initial_setup >&2 2> init_schema.1.txt
     echo "Second time's the charm. Output in init_schema.2.txt"
-    docker run --rm --env-file=env -w /opt/canvas-lms --link=$(mm_container_name db):db --link=$(mm_container_name cache):cache $image bundle exec rake db:initial_setup >&2 2> init_schema.2.txt
+    docker run --rm --env-file=$ENV -w /opt/canvas-lms --link=$(cs_container_name db):db --link=$(cs_container_name cache):cache $image bundle exec rake db:initial_setup >&2 2> init_schema.2.txt
 }
 
 
-mm_initdb() {
-    local image=$(mm_image_name mmooc/db)
-    docker run --rm -t -i --env-file=env --user=root --volumes-from=$(mm_container_name db-data) $image /bin/bash /root/initdb
+cs_initdb() {
+    local image=$(cs_image_name canvas-stack/db)
+    docker run --rm -t -i --env-file=$ENV --user=root --volumes-from=$(cs_container_name db-data) $image /bin/bash /root/initdb
 }
 
 
-mm_boot() {
-    mm_start_data
-    mm_initdb
-    mm_start db
-    mm_start cache
-    mm_init_schema
-    mm_start web
-    mm_start haproxy
-    mm_url
+cs_boot() {
+    cs_start_data
+    cs_initdb
+    cs_start db
+    cs_start cache
+    cs_init_schema
+    cs_start web
+    cs_start haproxy
+    cs_url
 }
 
-mm_stop() {
+cs_stop() {
     case $1 in
         services)
             for X in web cache db haproxy; do
@@ -234,12 +232,12 @@ mm_stop() {
             done
             ;;
         *)
-            mm_help stop
+            cs_help stop
             ;;
     esac
 }
 
-mm_help_main() {
+cs_help_main() {
     cat <<EOF
 Usage: mm [OPTIONS] COMMAND
 
@@ -264,47 +262,47 @@ Commads:
 EOF
 }
 
-mm_help_fixme() {
+cs_help_fixme() {
     echo "FIXME To be documented ..."
 }
 
-mm_help() {
+cs_help() {
     case $1 in
         build)
-            mm_help_build
+            cs_help_build
             ;;
         boot)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         help)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         initdb)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         init-schema)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         pull)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         rails)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         rails-dev)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         rake)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         start)
-            mm_help_start
+            cs_help_start
             ;;
         stop)
-            mm_help_fixme
+            cs_help_fixme
             ;;
         *)
-            mm_help_main
+            cs_help_main
             ;;
     esac
 }
@@ -318,78 +316,63 @@ command=$1
 shift || true
 case $command in
     build)
-        mm_build "$@"
+        cs_build "$@"
         ;;
     boot)
-        mm_boot
+        cs_boot
         ;;
     help)
-        mm_help "$@"
+        cs_help "$@"
         ;;
     initdb)
-        mm_initdb
+        cs_initdb
         ;;
     init-schema)
-        mm_init_schema
+        cs_init_schema
         ;;
     pull)
         for X in db canvas cache haproxy tools dev; do
-			## If canvas, use the custom canvas container
-			if [ "$X" = "canvas" ]; then
-				docker pull $CANVAS_CONTAINER
-			else
-				docker pull mmooc/$X
-			fi
+			docker pull canvas-stack/$X
         done
         ;;
     rails)
-        image=$(mm_image_name $CANVAS_CONTAINER)
-        docker run --rm -t -i -P --env-file=env --link db:db -w /opt/canvas-lms $image bundle exec rails "$@"
+        image=$(cs_image_name canvas-stack/canvas)
+        docker run --rm -t -i -P --env-file=$ENV --link db:db -w /opt/canvas-lms $image bundle exec rails "$@"
         ;;
     rails-dev)
-        docker run --rm -t -i -p 3000:3000 --env-file=env -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms $CANVAS_CONTAINER bundle exec rails "$@"
+        docker run --rm -t -i -p 3000:3000 --env-file=$ENV -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms canvas-stack/canvas bundle exec rails "$@"
         ;;
     dev)
-        docker run -t -i -p 3001:3000 --name=$(mm_container_name dev) --env-file=env -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms mmooc/dev
+        docker run -t -i -p 3001:3000 --name=$(cs_container_name dev) --env-file=$ENV -e RAILS_ENV=development --link db:db --link cache:cache -w /opt/canvas-lms canvas-stack/dev
         ;;
     rake)
-        docker run --rm -t -i -P --env-file=env -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms $CANVAS_CONTAINER bundle exec rake "$@"
+        docker run --rm -t -i -P --env-file=$ENV -e RAILS_ENV=development -v $canvas_dir:/canvas-lms --link db:db -w /canvas-lms canvas-stack/canvas bundle exec rake "$@"
         ;;
     reboot)
-        mm_stop services
+        cs_stop services
         for X in db canvas cache haproxy; do
-			## If canvas, use the custom canvas container
-			if [ "$X" = "canvas" ]; then
-				docker pull $CANVAS_CONTAINER
-			else
-				docker pull mmooc/$X
-			fi
+			docker pull canvas-stack/$X
         done
-        mm_boot
+        cs_boot
         ;;
     reset)
-        mm_stop services
-        mm_stop data
+        cs_stop services
+        cs_stop data
         for X in db canvas cache haproxy; do
-			## If canvas, use the custom canvas container
-			if [ "$X" = "canvas" ]; then
-				docker pull $CANVAS_CONTAINER
-			else
-				docker pull mmooc/$X
-			fi
+			docker pull canvas-stack/$X
         done
-        mm_boot
+        cs_boot
         ;;
     start)
-        mm_start "$@"
+        cs_start "$@"
         ;;
     stop)
-        mm_stop "$@"
+        cs_stop "$@"
         ;;
     url)
-        mm_url
+        cs_url
         ;;
     *)
-        mm_help
+        cs_help
         ;;
 esac
