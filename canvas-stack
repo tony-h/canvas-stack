@@ -134,11 +134,11 @@ container_exists() {
 
 cs_start_data() {
     if ! container_exists $(cs_container_name web-data) ; then
-        docker run -v /var/log/apache2 -v /opt/canvas-lms/log -v /opt/canvas-lms/tmp/files --name=$(cs_container_name web-data) ubuntu:12.04
+        docker run -v /var/log/apache2 -v /opt/canvas-lms/log -v /opt/canvas-lms/tmp/files --name=$(cs_container_name web-data) ubuntu:14.04
     fi
 
     if ! container_exists $(cs_container_name db-data) ; then
-        docker run -v /var/lib/postgresql/9.1/main --name=$(cs_container_name db-data) ubuntu:12.04
+        docker run -v /var/lib/postgresql/9.3/main --name=$(cs_container_name db-data) ubuntu:14.04
     fi
 }
 
